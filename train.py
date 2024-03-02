@@ -3,6 +3,7 @@ import hydra
 import logging
 
 import torch
+from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning import seed_everything, Trainer
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 from pytorch_lightning.plugins import DDPPlugin
@@ -27,7 +28,7 @@ def main(cfg):
     callbacks = [checkpoint, lr_monitor]
 
     # Set modules and trainer
-    if cfg.data.modality in ["audio", "visual"]:
+    if cfg.data.modality in ["audio", "video"]:
         from lightning import ModelModule
     elif cfg.data.modality == "audiovisual":
         from lightning_av import ModelModule
@@ -35,7 +36,7 @@ def main(cfg):
     datamodule = DataModule(cfg)
     trainer = Trainer(
         **cfg.trainer,
-        #logger=WandbLogger(name=cfg.exp_name, project="auto_avsr"),
+        logger=WandbLogger(name=cfg.exp_name, project="AV_ASR", entity= 'umbertocappellazzo'),
         callbacks=callbacks,
         strategy=DDPPlugin(find_unused_parameters=False)
     )
